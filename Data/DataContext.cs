@@ -1,6 +1,4 @@
-﻿using SocialNetwork.Entities;
-
-namespace SocialNetwork.Data
+﻿namespace SocialNetwork.Data
 {
     public class DataContext : DbContext
     {

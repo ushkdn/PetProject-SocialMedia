@@ -1,6 +1,4 @@
-﻿using SocialNetwork.Entities;
-
-namespace SocialNetwork.Dtos.UserDtos
+﻿namespace SocialNetwork.Dtos.UserDtos
 {
     public class GetUserDto
     {
@@ -9,6 +7,6 @@ namespace SocialNetwork.Dtos.UserDtos
         public string Name { get; set; }
         public DateTime Birthday { get; set; }
         public string Location { get; set; }
-        public GetUserDto[] Friends { get; set; }
+        public List<User> Friends { get; set; }
     }
 }

@@ -7,9 +7,8 @@
         public string Name { get; set; }
         public DateTime Birthday { get; set; }
         public string Location { get; set; }
-        public GetUserDto[] Friends { get; set; }
+        public List<User> Friends { get; set; }
         public string Email { get; set; }
-        public byte[] PasswordSalt { get; set; }
-        public byte[] PasswordHash { get; set; }
+        public string PasswordHash { get; set; }
     }
 }
