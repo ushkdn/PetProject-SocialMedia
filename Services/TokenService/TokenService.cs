@@ -9,14 +9,12 @@ namespace SocialNetwork.Services.TokenService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DataContext _context;
-        private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
 
-        public TokenService(IHttpContextAccessor httpContextAccessor, DataContext context, IMapper mapper, IConfiguration configuration)
+        public TokenService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration)
         {
             _httpContextAccessor = httpContextAccessor;
             _context=context;
-            _mapper = mapper;
             _configuration = configuration;
         }
 
