@@ -1,21 +1,15 @@
-﻿using SocialNetwork.Services.TokenService;
-
-namespace SocialNetwork.Services.AuthService
+﻿namespace SocialNetwork.Services.AuthService
 {
     public class AuthService : IAuthService
     {
         private readonly IMapper _mapper;
         private readonly DataContext _context;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITokenService _tokenService;
 
-        public AuthService(IMapper mapper, DataContext context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, ITokenService tokenService)
+        public AuthService(IMapper mapper, DataContext context, ITokenService tokenService)
         {
             _mapper = mapper;
             _context = context;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
             _tokenService = tokenService;
         }
 
@@ -56,7 +50,7 @@ namespace SocialNetwork.Services.AuthService
                 }
                 string token = _tokenService.CreateToken(user);
                 var refreshToken = _tokenService.CreateRefreshToken(user.Id);
-                _tokenService.SetRefreshToken(refreshToken, user);
+                await _tokenService.SetRefreshToken(refreshToken, user);
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You are successfully logged in.";

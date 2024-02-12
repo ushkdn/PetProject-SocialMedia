@@ -14,7 +14,7 @@ namespace SocialNetwork.Services.TokenService
         public TokenService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration)
         {
             _httpContextAccessor = httpContextAccessor;
-            _context=context;
+            _context = context;
             _configuration = configuration;
         }
 
@@ -47,7 +47,7 @@ namespace SocialNetwork.Services.TokenService
             }
             string token = CreateToken(user);
             var newRefreshToken = CreateRefreshToken(user.Id);
-            SetRefreshToken(newRefreshToken, user);
+            await SetRefreshToken(newRefreshToken, user);
             serviceResponse.Data = token;
             serviceResponse.Success = true;
             serviceResponse.Message = "Refresh token updated successfully";

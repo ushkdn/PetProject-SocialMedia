@@ -5,10 +5,10 @@ global using SocialNetwork.Data;
 global using SocialNetwork.Dtos.UserDtos;
 global using SocialNetwork.Entities;
 global using SocialNetwork.Services.AuthService;
+global using SocialNetwork.Services.TokenService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SocialNetwork.Services.TokenService;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 

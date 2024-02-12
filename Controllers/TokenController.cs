@@ -1,6 +1,4 @@
-﻿using SocialNetwork.Services.TokenService;
-
-namespace SocialNetwork.Controllers
+﻿namespace SocialNetwork.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
