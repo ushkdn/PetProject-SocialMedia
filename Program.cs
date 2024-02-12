@@ -8,6 +8,7 @@ global using SocialNetwork.Services.AuthService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SocialNetwork.Services.TokenService;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 
@@ -48,6 +49,7 @@ namespace SocialNetwork
                 }
             );
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment()) {

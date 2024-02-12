@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using SocialNetwork.Services.TokenService;
 
 namespace SocialNetwork.Controllers
 {
@@ -7,11 +6,15 @@ namespace SocialNetwork.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
-        public TokenController()
+        private readonly ITokenService _tokenService;
+        public TokenController(ITokenService tokenService)
         {
-            
+            _tokenService = tokenService;
         }
-        [HttpPost]
-        
+        [HttpPost("Refresh-Token")]
+        public async Task<ActionResult<ServiceResponse<string>>> RefreshToken()
+        {
+            return Ok(await _tokenService.RefreshToken());
+        }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -10,28 +8,26 @@ namespace SocialNetwork.Services.TokenService
     public class TokenService : ITokenService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITokenService _tokenService;
         private readonly DataContext _context;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        public TokenService(IHttpContextAccessor httpContextAccessor, ITokenService tokenService, DataContext context, IMapper mapper, IConfiguration configuration)
+
+        public TokenService(IHttpContextAccessor httpContextAccessor, DataContext context, IMapper mapper, IConfiguration configuration)
         {
             _httpContextAccessor = httpContextAccessor;
-            _tokenService = tokenService;
             _context=context;
             _mapper = mapper;
             _configuration = configuration;
-
         }
+
         public async Task<ServiceResponse<string>> RefreshToken()
         {
             var serviceResponse = new ServiceResponse<string>();
-
             var refreshTokenCookie = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
             var refreshCookieValue = refreshTokenCookie.Split(".");
             var refreshCookieOwner = refreshCookieValue[1];
 
-            var user = await _context.Users.FindAsync(refreshCookieOwner);
+            var user = await _context.Users.FindAsync(Convert.ToInt32(refreshCookieOwner));
 
             if (string.IsNullOrEmpty(refreshTokenCookie)) {
                 serviceResponse.Data = null;
@@ -51,19 +47,16 @@ namespace SocialNetwork.Services.TokenService
                 serviceResponse.Message = "Token expired.";
                 return serviceResponse;
             }
-
-            string token = CreateToken(_mapper.Map<LoginInUserDto>(user));
+            string token = CreateToken(user);
             var newRefreshToken = CreateRefreshToken(user.Id);
-            SetRefreshToken(newRefreshToken, ref user);
+            SetRefreshToken(newRefreshToken, user);
             serviceResponse.Data = token;
             serviceResponse.Success = true;
             serviceResponse.Message = "Refresh token updated successfully";
             return serviceResponse;
         }
 
-
-
-        protected RefreshToken CreateRefreshToken(int userId)
+        public RefreshToken CreateRefreshToken(int userId)
         {
             var refreshToken = new RefreshToken
             {
@@ -73,7 +66,7 @@ namespace SocialNetwork.Services.TokenService
             return refreshToken;
         }
 
-        protected void SetRefreshToken(RefreshToken newRefreshToken, ref User user)
+        public async Task SetRefreshToken(RefreshToken newRefreshToken, User user)
         {
             var cookieOptions = new CookieOptions
             {
@@ -82,11 +75,12 @@ namespace SocialNetwork.Services.TokenService
             };
             _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
             user.RefreshToken = newRefreshToken.Token;
-            user.TokenCreated = newRefreshToken.Created;
-            user.TokenExpires = newRefreshToken.Expires;
+            user.TokenCreated = DateTime.SpecifyKind(Convert.ToDateTime(newRefreshToken.Created), DateTimeKind.Utc);
+            user.TokenExpires = DateTime.SpecifyKind(Convert.ToDateTime(newRefreshToken.Expires), DateTimeKind.Utc);
+            await _context.SaveChangesAsync();
         }
 
-        protected string CreateToken(LoginInUserDto user)
+        public string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Email, user.Email), new Claim(ClaimTypes.Role, "Client") };
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:DefaultToken").Value));

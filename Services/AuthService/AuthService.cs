@@ -1,18 +1,15 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using SocialNetwork.Services.TokenService;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
+﻿using SocialNetwork.Services.TokenService;
 
 namespace SocialNetwork.Services.AuthService
 {
-    public class AuthService : IAuthService, ITokenService
+    public class AuthService : IAuthService
     {
         private readonly IMapper _mapper;
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITokenService _tokenService;
+
         public AuthService(IMapper mapper, DataContext context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, ITokenService tokenService)
         {
             _mapper = mapper;
@@ -21,6 +18,7 @@ namespace SocialNetwork.Services.AuthService
             _httpContextAccessor = httpContextAccessor;
             _tokenService = tokenService;
         }
+
         public async Task<ServiceResponse<GetUserDto>> Register(RegisterUserDto request)
         {
             var serviceResponse = new ServiceResponse<GetUserDto>();
@@ -56,9 +54,9 @@ namespace SocialNetwork.Services.AuthService
                 if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)) {
                     throw new Exception("Wrong email or password.");
                 }
-                string token = _tokenService.CreateToken(request);
-                var refreshToken = CreateRefreshToken(user.Id);
-                _tokenService.SetRefreshToken(refreshToken, ref user);
+                string token = _tokenService.CreateToken(user);
+                var refreshToken = _tokenService.CreateRefreshToken(user.Id);
+                _tokenService.SetRefreshToken(refreshToken, user);
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You are successfully logged in.";
@@ -69,10 +67,6 @@ namespace SocialNetwork.Services.AuthService
                 serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
-
         }
-
-        
-
     }
 }
