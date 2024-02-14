@@ -80,7 +80,7 @@ namespace SocialNetwork.Services.TokenService
 
         public string CreateToken(User user)
         {
-            List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Email, user.Email), new Claim(ClaimTypes.Role, "Client") };
+            List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Email, user.Email) };
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:DefaultToken").Value));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(

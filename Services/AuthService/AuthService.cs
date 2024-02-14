@@ -1,4 +1,6 @@
-﻿namespace SocialNetwork.Services.AuthService
+﻿using MimeKit.Cryptography;
+
+namespace SocialNetwork.Services.AuthService
 {
     public class AuthService : IAuthService
     {

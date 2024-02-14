@@ -24,9 +24,9 @@ namespace SocialNetwork
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options => {
-                options.AddSecurityDefinition("Oauth2", new OpenApiSecurityScheme
+                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
-                    Description = "Standart authorization header using the Bearer scheme (\"Bearer: {token}\")",
+                    Description = "Standart authorization header using the Bearer Scheme (\"bearer {token}\")",
                     In = ParameterLocation.Header,
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
@@ -46,8 +46,7 @@ namespace SocialNetwork
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
-                }
-            );
+                });
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             var app = builder.Build();
