@@ -1,5 +1,4 @@
-﻿using MimeKit.Cryptography;
-
+﻿
 namespace SocialNetwork.Services.AuthService
 {
     public class AuthService : IAuthService
@@ -7,12 +6,14 @@ namespace SocialNetwork.Services.AuthService
         private readonly IMapper _mapper;
         private readonly DataContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
 
-        public AuthService(IMapper mapper, DataContext context, ITokenService tokenService)
+        public AuthService(IMapper mapper, DataContext context, ITokenService tokenService, IEmailService emailService)
         {
             _mapper = mapper;
             _context = context;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
 
         public async Task<ServiceResponse<GetUserDto>> Register(RegisterUserDto request)
@@ -24,6 +25,7 @@ namespace SocialNetwork.Services.AuthService
                 if (EmailCheck != null) {
                     throw new Exception("This email is already taken.");
                 }
+                _emailService.SendEmail(request.Email);
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 user = _mapper.Map<User>(request);
                 user.PasswordHash = passwordHash;

@@ -6,6 +6,7 @@ global using SocialNetwork.Dtos.UserDtos;
 global using SocialNetwork.Entities;
 global using SocialNetwork.Services.AuthService;
 global using SocialNetwork.Services.TokenService;
+global using SocialNetwork.Services.EmailService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -48,7 +49,8 @@ namespace SocialNetwork
                     };
                 });
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();  
+            builder.Services.AddSingleton<IEmailService, EmailService>();
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment()) {
