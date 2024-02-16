@@ -50,7 +50,7 @@ namespace SocialNetwork
                 });
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenService, TokenService>();  
-            builder.Services.AddSingleton<IEmailService, EmailService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment()) {

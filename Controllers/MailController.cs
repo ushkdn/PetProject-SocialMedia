@@ -20,9 +20,9 @@ namespace SocialNetwork.Controllers
             _emailService = emailService;
         }
         [HttpPost("Verify-Email")]
-        public ActionResult<ServiceResponse<string>> VerifyEmail(string securityCode)
+        public async Task<ActionResult<ServiceResponse<string>>> VerifyEmail(string securityCode)
         {
-            return Ok(_emailService.VerifyEmail(securityCode));
+            return Ok(await _emailService.VerifyEmail(securityCode));
         }
     }
 }

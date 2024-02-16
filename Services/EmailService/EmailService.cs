@@ -2,29 +2,29 @@
 using MimeKit;
 using MimeKit.Text;
 using MailKit.Security;
-using SocialNetwork.Services.EmailService;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace SocialNetwork.Services.EmailService
 {
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        private string sentSecurityCode { get; set; }
-
-        public EmailService(IConfiguration configuration)
+        private readonly DataContext _context;
+        public EmailService(IConfiguration configuration, DataContext context)
         {
             _configuration = configuration;
+            _context = context;
         }
-        public ServiceResponse<string> SendEmail(string recipient)
+        public async Task<ServiceResponse<string>> SendEmail(string recipient)
         {
             var serviceResponse = new ServiceResponse<string>();
             var email = new MimeMessage();
-            sentSecurityCode =CreateSecurityCode();
+            var securityCode = CreateSecurityCode();
+            var metaData = await _context.MetaDatas.Where(x => x.Email == recipient).FirstAsync();
+            metaData.SecurityCode = securityCode;
             email.From.Add(MailboxAddress.Parse(_configuration.GetSection("EmailConfiguration:AdminEmail").Value));
             email.To.Add(MailboxAddress.Parse(recipient));
             email.Subject = "Security code to complete registration.";
-            email.Body = new TextPart(TextFormat.Plain) { Text = sentSecurityCode };
+            email.Body = new TextPart(TextFormat.Plain) { Text = securityCode };
 
             var smtp = new SmtpClient();
 
@@ -41,27 +41,31 @@ namespace SocialNetwork.Services.EmailService
 
             smtp.Send(email);
             smtp.Disconnect(true);
+            await _context.SaveChangesAsync();
             serviceResponse.Data = null;
             serviceResponse.Success = true;
             serviceResponse.Message = "Security code sent to your email.";
             return serviceResponse;
         }
 
-        public ServiceResponse<string> VerifyEmail([FromBody]string securityCode)
+        public async Task<ServiceResponse<string>> VerifyEmail(string securityCode)
         {
             var serviceResponse = new ServiceResponse<string>();
+            var metaData = await _context.MetaDatas.Where(x=>x.SecurityCode==securityCode).FirstAsync();
             try {
-                if (securityCode != sentSecurityCode) {
-                    throw new Exception("Invalid security code.");
+                if (metaData.SecurityCode!=securityCode) {
+                    throw new Exception("Wrong security code.");
                 }
+                metaData.IsVerified = true;
+                await _context.SaveChangesAsync();
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Email successfully confirmed.";
 
-            }catch(Exception ex) {
+            } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
-                serviceResponse.Message = "Wrong security code.";
+                serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
         }
@@ -75,7 +79,6 @@ namespace SocialNetwork.Services.EmailService
             for (int i = 0; i < 5; i++) {
                 result[i] = chars[rnd.Next(chars.Length)];
             }
-
             return new string(result);
         }
     }

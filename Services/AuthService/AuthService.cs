@@ -1,5 +1,4 @@
-﻿
-namespace SocialNetwork.Services.AuthService
+﻿namespace SocialNetwork.Services.AuthService
 {
     public class AuthService : IAuthService
     {
@@ -21,20 +20,23 @@ namespace SocialNetwork.Services.AuthService
             var serviceResponse = new ServiceResponse<GetUserDto>();
             try {
                 var user = new User();
-                var EmailCheck = await _context.Users.Where(x => x.Email == request.Email).FirstOrDefaultAsync();
+                var metaData = new MetaData();
+                var EmailCheck = await _context.MetaDatas.Where(x => x.Email == request.Email).FirstOrDefaultAsync();
                 if (EmailCheck != null) {
                     throw new Exception("This email is already taken.");
                 }
-                _emailService.SendEmail(request.Email);
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 user = _mapper.Map<User>(request);
-                user.PasswordHash = passwordHash;
+                metaData.Email = request.Email;
+                metaData.PasswordHash = passwordHash;
                 _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                metaData.Id = user.Id;
+                _context.MetaDatas.Add(metaData);
                 serviceResponse.Data = _mapper.Map<GetUserDto>(user);
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully registered.";
-
+                await _context.SaveChangesAsync();
+                await _emailService.SendEmail(request.Email);
             } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
@@ -48,13 +50,14 @@ namespace SocialNetwork.Services.AuthService
             var serviceResponse = new ServiceResponse<string>();
             try {
                 var user = new User();
-                user = await _context.Users.Where(x => x.Email == request.Email).FirstOrDefaultAsync() ?? throw new Exception("Wrong email or password.");
-                if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)) {
+                var metaData = new MetaData();
+                metaData= await _context.MetaDatas.Where(x => x.Email == request.Email).FirstOrDefaultAsync() ?? throw new Exception("Wrong email or password.");
+                if (!BCrypt.Net.BCrypt.Verify(request.Password, metaData.PasswordHash)) {
                     throw new Exception("Wrong email or password.");
                 }
-                string token = _tokenService.CreateToken(user);
-                var refreshToken = _tokenService.CreateRefreshToken(user.Id);
-                await _tokenService.SetRefreshToken(refreshToken, user);
+                string token = _tokenService.CreateToken(metaData);
+                var refreshToken = _tokenService.CreateRefreshToken(metaData.Id);
+                await _tokenService.SetRefreshToken(refreshToken, metaData);
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You are successfully logged in.";

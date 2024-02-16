@@ -2,7 +2,7 @@
 {
     public interface IEmailService
     {
-        ServiceResponse<string> SendEmail(string recipient);
-        ServiceResponse<string> VerifyEmail(string securityCode);
+        Task<ServiceResponse<string>> SendEmail(string recipient);
+        Task<ServiceResponse<string>> VerifyEmail(string securityCode);
     }
 }
