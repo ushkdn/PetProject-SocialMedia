@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SocialNetwork.Dtos.UserDtos
+﻿namespace SocialNetwork.Dtos.UserDtos
 {
     public class LoginInUserDto
     {

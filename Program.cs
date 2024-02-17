@@ -7,11 +7,20 @@ global using SocialNetwork.Entities;
 global using SocialNetwork.Services.AuthService;
 global using SocialNetwork.Services.TokenService;
 global using SocialNetwork.Services.EmailService;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
-using System.Text;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.OpenApi.Models;
+global using Swashbuckle.AspNetCore.Filters;
+global using System.Text;
+global using System.IdentityModel.Tokens.Jwt;
+global using System.Security.Claims;
+global using System.Security.Cryptography;
+global using MailKit.Net.Smtp;
+global using MimeKit;
+global using MimeKit.Text;
+global using MailKit.Security;
+global using System.ComponentModel.DataAnnotations;
 
 namespace SocialNetwork
 {

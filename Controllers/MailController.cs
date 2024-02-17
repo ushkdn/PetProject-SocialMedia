@@ -1,13 +1,4 @@
-﻿using MailKit.Net.Smtp;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using MimeKit;
-using MimeKit.Text;
-using MailKit.Security;
-using SocialNetwork.Services.EmailService;
-
-namespace SocialNetwork.Controllers
+﻿namespace SocialNetwork.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,6 +10,7 @@ namespace SocialNetwork.Controllers
         {
             _emailService = emailService;
         }
+
         [HttpPost("Verify-Email")]
         public async Task<ActionResult<ServiceResponse<string>>> VerifyEmail(string securityCode)
         {

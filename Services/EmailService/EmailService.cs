@@ -1,9 +1,4 @@
-﻿using MailKit.Net.Smtp;
-using MimeKit;
-using MimeKit.Text;
-using MailKit.Security;
-
-namespace SocialNetwork.Services.EmailService
+﻿namespace SocialNetwork.Services.EmailService
 {
     public class EmailService : IEmailService
     {

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace SocialNetwork.Controllers
+﻿namespace SocialNetwork.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
