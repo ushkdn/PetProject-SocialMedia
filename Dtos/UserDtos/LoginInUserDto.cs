@@ -1,8 +1,12 @@
-﻿namespace SocialNetwork.Dtos.UserDtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SocialNetwork.Dtos.UserDtos
 {
     public class LoginInUserDto
     {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
+        [Required, EmailAddress]
+        public string Email { get; set; }
+        [Required]
+        public string Password { get; set; }
     }
 }

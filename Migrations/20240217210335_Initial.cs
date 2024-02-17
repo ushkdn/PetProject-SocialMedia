@@ -20,6 +20,8 @@ namespace SocialNetwork.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Email = table.Column<string>(type: "text", nullable: false),
                     SecurityCode = table.Column<string>(type: "text", nullable: false),
+                    SecurityCodeCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SecurityCodeExprires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     RefreshToken = table.Column<string>(type: "text", nullable: false),

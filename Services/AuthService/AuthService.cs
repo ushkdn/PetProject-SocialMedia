@@ -55,6 +55,9 @@
                 if (!BCrypt.Net.BCrypt.Verify(request.Password, metaData.PasswordHash)) {
                     throw new Exception("Wrong email or password.");
                 }
+                if (metaData.IsVerified == false) {
+                    throw new Exception("You have not verified your email.");
+                }
                 string token = _tokenService.CreateToken(metaData);
                 var refreshToken = _tokenService.CreateRefreshToken(metaData.Id);
                 await _tokenService.SetRefreshToken(refreshToken, metaData);

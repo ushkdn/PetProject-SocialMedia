@@ -49,6 +49,12 @@ namespace SocialNetwork.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("SecurityCodeCreated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("SecurityCodeExprires")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("TokenCreated")
                         .HasColumnType("timestamp with time zone");
 

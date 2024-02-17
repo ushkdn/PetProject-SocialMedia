@@ -14,6 +14,26 @@ namespace SocialNetwork.Services.EmailService
             _configuration = configuration;
             _context = context;
         }
+        public async Task<ServiceResponse<string>> ResendEmail(string securityCode)
+        {
+            var serviceResponse = new ServiceResponse<string>();
+            try {
+                var metaData = await _context.MetaDatas.Where(x => x.SecurityCode == securityCode).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
+                if (metaData.SecurityCode != securityCode) {
+                    throw new Exception("Invalid security code.");
+                }
+                await SendEmail(metaData.Email);
+                serviceResponse.Data = null;
+                serviceResponse.Success = true;
+                serviceResponse.Message = "New security code has been sent to your email.";
+
+            } catch(Exception ex) {
+                serviceResponse.Data = null;
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            return serviceResponse;
+        }
         public async Task<ServiceResponse<string>> SendEmail(string recipient)
         {
             var serviceResponse = new ServiceResponse<string>();
@@ -21,6 +41,8 @@ namespace SocialNetwork.Services.EmailService
             var securityCode = CreateSecurityCode();
             var metaData = await _context.MetaDatas.Where(x => x.Email == recipient).FirstAsync();
             metaData.SecurityCode = securityCode;
+            metaData.SecurityCodeCreated=DateTime.UtcNow;
+            metaData.SecurityCodeExprires=DateTime.UtcNow.AddMinutes(3);
             email.From.Add(MailboxAddress.Parse(_configuration.GetSection("EmailConfiguration:AdminEmail").Value));
             email.To.Add(MailboxAddress.Parse(recipient));
             email.Subject = "Security code to complete registration.";
@@ -56,6 +78,9 @@ namespace SocialNetwork.Services.EmailService
                 if (metaData.SecurityCode!=securityCode) {
                     throw new Exception("Wrong security code.");
                 }
+                if (metaData.SecurityCodeExprires < DateTime.UtcNow) {
+                    throw new Exception("Security code has expired.");
+                }
                 metaData.IsVerified = true;
                 await _context.SaveChangesAsync();
                 serviceResponse.Data = null;
@@ -74,9 +99,9 @@ namespace SocialNetwork.Services.EmailService
             Random rnd = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-            char[] result = new char[5];
+            char[] result = new char[8];
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 8; i++) {
                 result[i] = chars[rnd.Next(chars.Length)];
             }
             return new string(result);

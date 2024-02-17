@@ -22,35 +22,31 @@ namespace SocialNetwork.Services.TokenService
         {
             var serviceResponse = new ServiceResponse<string>();
             var refreshTokenCookie = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
-            var refreshCookieValue = refreshTokenCookie.Split(".");
-            var refreshCookieOwner = refreshCookieValue[1];
+            try {
+                var metaData = await _context.MetaDatas.Where(x => x.RefreshToken == refreshTokenCookie).FirstOrDefaultAsync();
 
-            var metaData = await _context.MetaDatas.FindAsync(Convert.ToInt32(refreshCookieOwner));
+                if (string.IsNullOrEmpty(refreshTokenCookie)) {
+                    throw new Exception("Missing refresh token.");
+                }
+                if (metaData == null || !metaData.RefreshToken.Equals(refreshTokenCookie, StringComparison.OrdinalIgnoreCase)) {
+                    throw new Exception("Invalid refresh token.");
+                }
+                if (metaData.TokenExpires < DateTime.Now) {
+                    throw new Exception("Token expired.");
+                }
 
-            if (string.IsNullOrEmpty(refreshTokenCookie)) {
+                string token = CreateToken(metaData);
+                var newRefreshToken = CreateRefreshToken(metaData.Id);
+                await SetRefreshToken(newRefreshToken, metaData);
+
+                serviceResponse.Data = token;
+                serviceResponse.Success = true;
+                serviceResponse.Message = "Refresh token updated successfully";
+            }catch(Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
-                serviceResponse.Message = "Missing refresh token.";
-                return serviceResponse;
-
-            } else if (metaData == null || !metaData.RefreshToken.Equals(refreshTokenCookie, StringComparison.OrdinalIgnoreCase)) {
-                serviceResponse.Data = null;
-                serviceResponse.Success = false;
-                serviceResponse.Message = "Invalid refresh token.";
-                return serviceResponse;
+                serviceResponse.Message = ex.Message;
             }
-            if (metaData.TokenExpires < DateTime.Now) {
-                serviceResponse.Data = null;
-                serviceResponse.Success = false;
-                serviceResponse.Message = "Token expired.";
-                return serviceResponse;
-            }
-            string token = CreateToken(metaData);
-            var newRefreshToken = CreateRefreshToken(metaData.Id);
-            await SetRefreshToken(newRefreshToken, metaData);
-            serviceResponse.Data = token;
-            serviceResponse.Success = true;
-            serviceResponse.Message = "Refresh token updated successfully";
             return serviceResponse;
         }
 
@@ -58,8 +54,9 @@ namespace SocialNetwork.Services.TokenService
         {
             var refreshToken = new RefreshToken
             {
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)) + "." + Convert.ToString(userId),
-                Expires = DateTime.Now.AddDays(7)
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Created=DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddDays(7)
             };
             return refreshToken;
         }
@@ -73,8 +70,8 @@ namespace SocialNetwork.Services.TokenService
             };
             _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
             metaData.RefreshToken = newRefreshToken.Token;
-            metaData.TokenCreated = DateTime.SpecifyKind(Convert.ToDateTime(newRefreshToken.Created), DateTimeKind.Utc);
-            metaData.TokenExpires = DateTime.SpecifyKind(Convert.ToDateTime(newRefreshToken.Expires), DateTimeKind.Utc);
+            metaData.TokenCreated = newRefreshToken.Created;
+            metaData.TokenExpires = newRefreshToken.Expires;
             await _context.SaveChangesAsync();
         }
 
@@ -85,7 +82,7 @@ namespace SocialNetwork.Services.TokenService
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds
             );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);

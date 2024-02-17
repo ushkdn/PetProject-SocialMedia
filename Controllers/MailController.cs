@@ -24,5 +24,10 @@ namespace SocialNetwork.Controllers
         {
             return Ok(await _emailService.VerifyEmail(securityCode));
         }
+        [HttpPost("Resend-SecurityCode")]
+        public async Task<ActionResult<ServiceResponse<string>>> ResendSecurityCode(string securityCode)
+        {
+            return Ok(await _emailService.ResendEmail(securityCode));
+        }
     }
 }
