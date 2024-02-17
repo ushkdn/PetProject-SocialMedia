@@ -4,7 +4,6 @@
     [ApiController]
     public class AuthController : ControllerBase
     {
-        //TODO: Add ForgotPassword
         private readonly IAuthService _authService;
 
         public AuthController(IAuthService authService)
@@ -22,10 +21,15 @@
         {
             return Ok(await _authService.LoginIn(request));
         }
-        [HttpPost("test"), Authorize]
-        public IActionResult Test()
+        [HttpPost("Forgot-Password")]
+        public async Task<ActionResult<ServiceResponse<string>>> ForgotPassword(string email)
         {
-            return Ok("test");
+            return Ok(await _authService.ForgotPassword(email));
+        }
+        [HttpPost("Reset-Password")]
+        public async Task<ActionResult<ServiceResponse<string>>> ResetPassword(ResetPasswordDto request)
+        {
+            return Ok(await _authService.ResetPassword(request));
         }
     }
 }

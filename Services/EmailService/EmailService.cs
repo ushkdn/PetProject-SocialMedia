@@ -17,7 +17,11 @@
                 if (metaData.SecurityCode != securityCode) {
                     throw new Exception("Invalid security code.");
                 }
-                await SendEmail(metaData.Email);
+                if (metaData.IsVerified == false) {
+                    await SendEmail("Security code to complete registration.", metaData.Email);
+                } else {
+                    await SendEmail("Security code for password recovery.", metaData.Email);
+                }
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "New security code has been sent to your email.";
@@ -29,7 +33,7 @@
             }
             return serviceResponse;
         }
-        public async Task<ServiceResponse<string>> SendEmail(string recipient)
+        public async Task<ServiceResponse<string>> SendEmail(string topic, string recipient)
         {
             var serviceResponse = new ServiceResponse<string>();
             var email = new MimeMessage();
@@ -40,7 +44,7 @@
             metaData.SecurityCodeExprires=DateTime.UtcNow.AddMinutes(3);
             email.From.Add(MailboxAddress.Parse(_configuration.GetSection("EmailConfiguration:AdminEmail").Value));
             email.To.Add(MailboxAddress.Parse(recipient));
-            email.Subject = "Security code to complete registration.";
+            email.Subject = topic;
             email.Body = new TextPart(TextFormat.Plain) { Text = securityCode };
 
             var smtp = new SmtpClient();

@@ -73,7 +73,7 @@
         public string CreateToken(MetaData metaData)
         {
             List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Email, metaData.Email) };
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:DefaultToken").Value));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:DefaultToken").Value));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(
                 claims: claims,

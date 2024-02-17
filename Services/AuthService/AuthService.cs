@@ -36,7 +36,7 @@
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully registered.";
                 await _context.SaveChangesAsync();
-                await _emailService.SendEmail(request.Email);
+                await _emailService.SendEmail("Security code to complete registration.", request.Email);
             } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
@@ -66,6 +66,50 @@
                 serviceResponse.Message = "You are successfully logged in.";
 
             } catch (Exception ex) {
+                serviceResponse.Data = null;
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            return serviceResponse;
+        }
+        public async Task<ServiceResponse<string>> ForgotPassword(string email)
+        {
+            var serviceResponse = new ServiceResponse<string>();
+            try {
+                var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
+                if (metaData.IsVerified == false) {
+                    throw new Exception("You have not verified your email.");
+                }
+                await _emailService.SendEmail("Security code for password recovery.", email);
+                serviceResponse.Data = null;
+                serviceResponse.Success= true;
+                serviceResponse.Message = "Security code sent to your email.";
+
+            } catch(Exception ex) {
+                serviceResponse.Data = null;
+                serviceResponse.Success = false;
+                serviceResponse.Message=ex.Message;
+            }
+            return serviceResponse;
+        }
+        public async Task<ServiceResponse<string>> ResetPassword(ResetPasswordDto request)
+        {
+            var serviceResponse = new ServiceResponse<string>();
+            try {
+                var user = await _context.MetaDatas.Where(x => x.SecurityCode == request.SecurityCode).FirstOrDefaultAsync() ?? throw new Exception("Invalid security code.");
+                if(user.IsVerified == false) {
+                    throw new Exception("You have not verified your email.");
+                }
+                if (user.SecurityCodeExprires < DateTime.UtcNow) {
+                    throw new Exception("Security code has expired.");
+                }
+                user.PasswordHash=BCrypt.Net.BCrypt.HashPassword(request.Password);
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = null;
+                serviceResponse.Success = true;
+                serviceResponse.Message = "You have successfully updated your password.";
+
+            } catch(Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
