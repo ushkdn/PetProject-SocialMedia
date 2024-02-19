@@ -37,7 +37,7 @@
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Refresh token updated successfully";
-            }catch(Exception ex) {
+            } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
@@ -50,7 +50,7 @@
             var refreshToken = new RefreshToken
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Created=DateTime.UtcNow,
+                Created = DateTime.UtcNow,
                 Expires = DateTime.UtcNow.AddDays(7)
             };
             return refreshToken;

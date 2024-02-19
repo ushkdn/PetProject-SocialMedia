@@ -51,7 +51,7 @@
             try {
                 var user = new User();
                 var metaData = new MetaData();
-                metaData= await _context.MetaDatas.Where(x => x.Email == request.Email).FirstOrDefaultAsync() ?? throw new Exception("Wrong email or password.");
+                metaData = await _context.MetaDatas.Where(x => x.Email == request.Email).FirstOrDefaultAsync() ?? throw new Exception("Wrong email or password.");
                 if (!BCrypt.Net.BCrypt.Verify(request.Password, metaData.PasswordHash)) {
                     throw new Exception("Wrong email or password.");
                 }
@@ -82,13 +82,13 @@
                 }
                 await _emailService.SendEmail("Security code for password recovery.", email);
                 serviceResponse.Data = null;
-                serviceResponse.Success= true;
+                serviceResponse.Success = true;
                 serviceResponse.Message = "Security code sent to your email.";
 
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
-                serviceResponse.Message=ex.Message;
+                serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
         }
@@ -97,19 +97,19 @@
             var serviceResponse = new ServiceResponse<string>();
             try {
                 var user = await _context.MetaDatas.Where(x => x.SecurityCode == request.SecurityCode).FirstOrDefaultAsync() ?? throw new Exception("Invalid security code.");
-                if(user.IsVerified == false) {
+                if (user.IsVerified == false) {
                     throw new Exception("You have not verified your email.");
                 }
                 if (user.SecurityCodeExprires < DateTime.UtcNow) {
                     throw new Exception("Security code has expired.");
                 }
-                user.PasswordHash=BCrypt.Net.BCrypt.HashPassword(request.Password);
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 await _context.SaveChangesAsync();
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully updated your password.";
 
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;

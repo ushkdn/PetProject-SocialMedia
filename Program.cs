@@ -1,26 +1,28 @@
 global using AutoMapper;
+global using MailKit.Net.Smtp;
+global using MailKit.Security;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.OpenApi.Models;
+global using MimeKit;
+global using MimeKit.Text;
 global using SocialNetwork.Data;
 global using SocialNetwork.Dtos.UserDtos;
 global using SocialNetwork.Entities;
 global using SocialNetwork.Services.AuthService;
-global using SocialNetwork.Services.TokenService;
 global using SocialNetwork.Services.EmailService;
-global using Microsoft.AspNetCore.Authorization;
-global using Microsoft.AspNetCore.Authentication.JwtBearer;
-global using Microsoft.IdentityModel.Tokens;
-global using Microsoft.OpenApi.Models;
+global using SocialNetwork.Services.TokenService;
+global using SocialNetwork.Services.CacheService;
 global using Swashbuckle.AspNetCore.Filters;
-global using System.Text;
+global using System.ComponentModel.DataAnnotations;
 global using System.IdentityModel.Tokens.Jwt;
 global using System.Security.Claims;
 global using System.Security.Cryptography;
-global using MailKit.Net.Smtp;
-global using MimeKit;
-global using MimeKit.Text;
-global using MailKit.Security;
-global using System.ComponentModel.DataAnnotations;
+global using System.Text;
+global using StackExchange.Redis;
+global using System.Text.Json;
 
 namespace SocialNetwork
 {
@@ -58,8 +60,9 @@ namespace SocialNetwork
                     };
                 });
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();  
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<ICacheService, CacheService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment()) {

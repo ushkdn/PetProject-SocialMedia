@@ -4,10 +4,13 @@
     {
         private readonly IConfiguration _configuration;
         private readonly DataContext _context;
-        public EmailService(IConfiguration configuration, DataContext context)
+        private readonly ICacheService _cacheService;
+
+        public EmailService(IConfiguration configuration, DataContext context, ICacheService cacheService)
         {
             _configuration = configuration;
             _context = context;
+            _cacheService = cacheService;
         }
         public async Task<ServiceResponse<string>> ResendEmail(string securityCode)
         {
@@ -26,7 +29,7 @@
                 serviceResponse.Success = true;
                 serviceResponse.Message = "New security code has been sent to your email.";
 
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
@@ -40,8 +43,8 @@
             var securityCode = CreateSecurityCode();
             var metaData = await _context.MetaDatas.Where(x => x.Email == recipient).FirstAsync();
             metaData.SecurityCode = securityCode;
-            metaData.SecurityCodeCreated=DateTime.UtcNow;
-            metaData.SecurityCodeExprires=DateTime.UtcNow.AddMinutes(3);
+            metaData.SecurityCodeCreated = DateTime.UtcNow;
+            metaData.SecurityCodeExprires = DateTime.UtcNow.AddMinutes(3);
             email.From.Add(MailboxAddress.Parse(_configuration.GetSection("EmailConfiguration:AdminEmail").Value));
             email.To.Add(MailboxAddress.Parse(recipient));
             email.Subject = topic;
@@ -72,9 +75,9 @@
         public async Task<ServiceResponse<string>> VerifyEmail(string securityCode)
         {
             var serviceResponse = new ServiceResponse<string>();
-            var metaData = await _context.MetaDatas.Where(x=>x.SecurityCode==securityCode).FirstAsync();
+            var metaData = await _context.MetaDatas.Where(x => x.SecurityCode == securityCode).FirstAsync();
             try {
-                if (metaData.SecurityCode!=securityCode) {
+                if (metaData.SecurityCode != securityCode) {
                     throw new Exception("Wrong security code.");
                 }
                 if (metaData.SecurityCodeExprires < DateTime.UtcNow) {

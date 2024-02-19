@@ -16,7 +16,7 @@
         {
             return Ok(await _authService.Register(request));
         }
-        [HttpPost("LoginIn")]
+        [HttpPost("Log-In")]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> Login(LoginInUserDto request)
         {
             return Ok(await _authService.LoginIn(request));
