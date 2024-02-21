@@ -1,4 +1,6 @@
-﻿namespace SocialNetwork.Services.AuthService
+﻿using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
+
+namespace SocialNetwork.Services.AuthService
 {
     public class AuthService : IAuthService
     {
@@ -95,11 +97,14 @@
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
-                var user = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("Invalid security code.");
+                var user = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
                 if (user.IsVerified == false) {
                     throw new Exception("You have not verified your email.");
                 }
-                var cacheCode = _cacheService.GetData<string>($"SecurityCode:{email}") ?? throw new Exception("Security code has expired.");
+                var cacheCode = await _cacheService.GetData<string>($"SecurityCode:{email}") ?? throw new Exception("Security code has expired.");
+                if (cacheCode != request.SecurityCode) {
+                    throw new Exception("Invalid security code.");
+                }
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 await _context.SaveChangesAsync();
                 serviceResponse.Data = null;

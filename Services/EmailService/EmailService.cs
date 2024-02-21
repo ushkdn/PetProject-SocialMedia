@@ -22,9 +22,9 @@ namespace SocialNetwork.Services.EmailService
             try {
                 var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
                 if (metaData.IsVerified == false) {
-                    SendEmail("Security code to complete registration.", metaData.Email);
+                    await SendEmail("Security code to complete registration.", metaData.Email);
                 } else {
-                    SendEmail("Security code for password recovery.", metaData.Email);
+                    await SendEmail("Security code for password recovery.", metaData.Email);
                 }
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
