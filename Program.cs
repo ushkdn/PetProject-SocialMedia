@@ -23,6 +23,7 @@ global using System.Security.Cryptography;
 global using System.Text;
 global using StackExchange.Redis;
 global using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace SocialNetwork
 {
@@ -59,6 +60,9 @@ namespace SocialNetwork
                         ValidateAudience = false
                     };
                 });
+            builder.Services.AddStackExchangeRedisCache(options => {
+                options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+            });
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<ICacheService, CacheService>();

@@ -12,7 +12,7 @@ using SocialNetwork.Data;
 namespace SocialNetwork.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240217210335_Initial")]
+    [Migration("20240221203207_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -47,16 +47,6 @@ namespace SocialNetwork.Migrations
                     b.Property<string>("RefreshToken")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("SecurityCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("SecurityCodeCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("SecurityCodeExprires")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("TokenCreated")
                         .HasColumnType("timestamp with time zone");

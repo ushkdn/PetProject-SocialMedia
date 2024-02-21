@@ -6,13 +6,15 @@
         private readonly DataContext _context;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
+        private readonly ICacheService _cacheService;
 
-        public AuthService(IMapper mapper, DataContext context, ITokenService tokenService, IEmailService emailService)
+        public AuthService(IMapper mapper, DataContext context, ITokenService tokenService, IEmailService emailService, ICacheService cacheService)
         {
             _mapper = mapper;
             _context = context;
             _tokenService = tokenService;
             _emailService = emailService;
+            _cacheService = cacheService;
         }
 
         public async Task<ServiceResponse<GetUserDto>> Register(RegisterUserDto request)
@@ -36,7 +38,7 @@
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully registered.";
                 await _context.SaveChangesAsync();
-                await _emailService.SendEmail("Security code to complete registration.", request.Email);
+                _emailService.SendEmail("Security code to complete registration.", request.Email);
             } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
@@ -77,10 +79,7 @@
             var serviceResponse = new ServiceResponse<string>();
             try {
                 var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
-                if (metaData.IsVerified == false) {
-                    throw new Exception("You have not verified your email.");
-                }
-                await _emailService.SendEmail("Security code for password recovery.", email);
+                _emailService.SendEmail("Security code for password recovery.", email);
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Security code sent to your email.";
@@ -92,17 +91,15 @@
             }
             return serviceResponse;
         }
-        public async Task<ServiceResponse<string>> ResetPassword(ResetPasswordDto request)
+        public async Task<ServiceResponse<string>> ResetPassword(string email, ResetPasswordDto request)
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
-                var user = await _context.MetaDatas.Where(x => x.SecurityCode == request.SecurityCode).FirstOrDefaultAsync() ?? throw new Exception("Invalid security code.");
+                var user = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("Invalid security code.");
                 if (user.IsVerified == false) {
                     throw new Exception("You have not verified your email.");
                 }
-                if (user.SecurityCodeExprires < DateTime.UtcNow) {
-                    throw new Exception("Security code has expired.");
-                }
+                var cacheCode = _cacheService.GetData<string>($"SecurityCode:{email}") ?? throw new Exception("Security code has expired.");
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 await _context.SaveChangesAsync();
                 serviceResponse.Data = null;

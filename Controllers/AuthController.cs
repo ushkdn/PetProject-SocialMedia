@@ -22,14 +22,14 @@
             return Ok(await _authService.LoginIn(request));
         }
         [HttpPost("Forgot-Password")]
-        public async Task<ActionResult<ServiceResponse<string>>> ForgotPassword(string email)
+        public async Task<ActionResult<ServiceResponse<string>>> ForgotPassword([EmailAddress] string email)
         {
             return Ok(await _authService.ForgotPassword(email));
         }
         [HttpPost("Reset-Password")]
-        public async Task<ActionResult<ServiceResponse<string>>> ResetPassword(ResetPasswordDto request)
+        public async Task<ActionResult<ServiceResponse<string>>> ResetPassword(string email, ResetPasswordDto request)
         {
-            return Ok(await _authService.ResetPassword(request));
+            return Ok(await _authService.ResetPassword(email, request));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -18,16 +19,14 @@ namespace SocialNetwork.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    SecurityCode = table.Column<string>(type: "text", nullable: false),
-                    SecurityCodeCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SecurityCodeExprires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     RefreshToken = table.Column<string>(type: "text", nullable: false),
                     TokenCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TokenExpires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
-                constraints: table => {
+                constraints: table =>
+                {
                     table.PrimaryKey("PK_MetaDatas", x => x.Id);
                 });
 
@@ -43,7 +42,8 @@ namespace SocialNetwork.Migrations
                     Location = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: true)
                 },
-                constraints: table => {
+                constraints: table =>
+                {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Users_Users_UserId",

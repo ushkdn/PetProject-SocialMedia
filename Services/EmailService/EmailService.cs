@@ -1,4 +1,8 @@
-﻿namespace SocialNetwork.Services.EmailService
+﻿using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
+using SocialNetwork.Entities;
+
+namespace SocialNetwork.Services.EmailService
 {
     public class EmailService : IEmailService
     {
@@ -12,18 +16,15 @@
             _context = context;
             _cacheService = cacheService;
         }
-        public async Task<ServiceResponse<string>> ResendEmail(string securityCode)
+        public async Task<ServiceResponse<string>> ResendEmail(string email)
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
-                var metaData = await _context.MetaDatas.Where(x => x.SecurityCode == securityCode).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
-                if (metaData.SecurityCode != securityCode) {
-                    throw new Exception("Invalid security code.");
-                }
+                var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
                 if (metaData.IsVerified == false) {
-                    await SendEmail("Security code to complete registration.", metaData.Email);
+                    SendEmail("Security code to complete registration.", metaData.Email);
                 } else {
-                    await SendEmail("Security code for password recovery.", metaData.Email);
+                    SendEmail("Security code for password recovery.", metaData.Email);
                 }
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
@@ -41,10 +42,7 @@
             var serviceResponse = new ServiceResponse<string>();
             var email = new MimeMessage();
             var securityCode = CreateSecurityCode();
-            var metaData = await _context.MetaDatas.Where(x => x.Email == recipient).FirstAsync();
-            metaData.SecurityCode = securityCode;
-            metaData.SecurityCodeCreated = DateTime.UtcNow;
-            metaData.SecurityCodeExprires = DateTime.UtcNow.AddMinutes(3);
+            await _cacheService.SetData($"SecurityCode:{recipient}", securityCode, DateTime.Now.AddMinutes(3));
             email.From.Add(MailboxAddress.Parse(_configuration.GetSection("EmailConfiguration:AdminEmail").Value));
             email.To.Add(MailboxAddress.Parse(recipient));
             email.Subject = topic;
@@ -65,23 +63,23 @@
 
             smtp.Send(email);
             smtp.Disconnect(true);
-            await _context.SaveChangesAsync();
             serviceResponse.Data = null;
             serviceResponse.Success = true;
             serviceResponse.Message = "Security code sent to your email.";
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<string>> VerifyEmail(string securityCode)
+        public async Task<ServiceResponse<string>> VerifyEmail(string email, string securityCode)
         {
             var serviceResponse = new ServiceResponse<string>();
-            var metaData = await _context.MetaDatas.Where(x => x.SecurityCode == securityCode).FirstAsync();
             try {
-                if (metaData.SecurityCode != securityCode) {
-                    throw new Exception("Wrong security code.");
+                var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
+                if (metaData.IsVerified == true) {
+                    throw new Exception("Your email has already been confirmed.");
                 }
-                if (metaData.SecurityCodeExprires < DateTime.UtcNow) {
-                    throw new Exception("Security code has expired.");
+                var cacheCode = await _cacheService.GetData<string>($"SecurityCode:{email}") ?? throw new Exception("Security code has expired.");
+                if (cacheCode != securityCode) {
+                    throw new Exception("Wrong security code.");
                 }
                 metaData.IsVerified = true;
                 await _context.SaveChangesAsync();

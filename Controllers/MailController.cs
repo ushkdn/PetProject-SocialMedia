@@ -12,14 +12,14 @@
         }
 
         [HttpPost("Verify-Email")]
-        public async Task<ActionResult<ServiceResponse<string>>> VerifyEmail(string securityCode)
+        public async Task<ActionResult<ServiceResponse<string>>> VerifyEmail(string email,string securityCode)
         {
-            return Ok(await _emailService.VerifyEmail(securityCode));
+            return Ok(await _emailService.VerifyEmail(email, securityCode));
         }
         [HttpPost("Resend-SecurityCode")]
-        public async Task<ActionResult<ServiceResponse<string>>> ResendSecurityCode(string securityCode)
+        public async Task<ActionResult<ServiceResponse<string>>> ResendSecurityCode(string email)
         {
-            return Ok(await _emailService.ResendEmail(securityCode));
+            return Ok(await _emailService.ResendEmail(email));
         }
     }
 }
