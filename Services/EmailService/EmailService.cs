@@ -1,8 +1,4 @@
-﻿using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.Pqc.Crypto.Lms;
-using SocialNetwork.Entities;
-
-namespace SocialNetwork.Services.EmailService
+﻿namespace SocialNetwork.Services.EmailService
 {
     public class EmailService : IEmailService
     {

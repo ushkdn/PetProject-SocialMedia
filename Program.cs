@@ -23,7 +23,6 @@ global using System.Security.Cryptography;
 global using System.Text;
 global using StackExchange.Redis;
 global using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace SocialNetwork
 {

@@ -1,6 +1,4 @@
-﻿using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
-
-namespace SocialNetwork.Services.AuthService
+﻿namespace SocialNetwork.Services.AuthService
 {
     public class AuthService : IAuthService
     {
@@ -40,7 +38,7 @@ namespace SocialNetwork.Services.AuthService
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully registered.";
                 await _context.SaveChangesAsync();
-                _emailService.SendEmail("Security code to complete registration.", request.Email);
+                await _emailService.SendEmail("Security code to complete registration.", request.Email);
             } catch (Exception ex) {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
@@ -81,7 +79,7 @@ namespace SocialNetwork.Services.AuthService
             var serviceResponse = new ServiceResponse<string>();
             try {
                 var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
-                _emailService.SendEmail("Security code for password recovery.", email);
+                await _emailService.SendEmail("Security code for password recovery.", email);
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Security code sent to your email.";
