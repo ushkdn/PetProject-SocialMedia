@@ -12,11 +12,11 @@
             _context = context;
             _cacheService = cacheService;
         }
-        public async Task<ServiceResponse<string>> ResendEmail(string email)
+        public async Task<ServiceResponse<string>> ResendEmail(int id)
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
-                var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
+                var metaData = await _context.MetaDatas.Where(x => x.OwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
                 if (metaData.IsVerified == false) {
                     await SendEmail("Security code to complete registration.", metaData.Email);
                 } else {
@@ -65,15 +65,15 @@
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<string>> VerifyEmail(string email, string securityCode)
+        public async Task<ServiceResponse<string>> VerifyEmail(int id, string securityCode)
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
-                var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
+                var metaData = await _context.MetaDatas.Where(x => x.OwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
                 if (metaData.IsVerified == true) {
                     throw new Exception("Your email has already been confirmed.");
                 }
-                var cacheCode = await _cacheService.GetData<string>($"SecurityCode:{email}") ?? throw new Exception("Security code has expired.");
+                var cacheCode = await _cacheService.GetData<string>($"SecurityCode:{metaData.Email}") ?? throw new Exception("Security code has expired.");
                 if (cacheCode != securityCode) {
                     throw new Exception("Wrong security code.");
                 }

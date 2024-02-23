@@ -31,7 +31,7 @@
                 }
 
                 string token = CreateToken(metaData);
-                var newRefreshToken = CreateRefreshToken(metaData.Id);
+                var newRefreshToken = CreateRefreshToken(metaData.OwnerId);
                 await SetRefreshToken(newRefreshToken, metaData);
 
                 serviceResponse.Data = token;

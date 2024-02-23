@@ -15,6 +15,7 @@ global using SocialNetwork.Services.AuthService;
 global using SocialNetwork.Services.EmailService;
 global using SocialNetwork.Services.TokenService;
 global using SocialNetwork.Services.CacheService;
+global using SocialNetwork.Services.UserService;
 global using Swashbuckle.AspNetCore.Filters;
 global using System.ComponentModel.DataAnnotations;
 global using System.IdentityModel.Tokens.Jwt;
@@ -59,13 +60,11 @@ namespace SocialNetwork
                         ValidateAudience = false
                     };
                 });
-            builder.Services.AddStackExchangeRedisCache(options => {
-                options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-            });
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<ICacheService, CacheService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment()) {

@@ -1,6 +1,6 @@
 ﻿namespace SocialNetwork.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/email")]
     [ApiController]
     public class MailController : ControllerBase
     {
@@ -11,15 +11,15 @@
             _emailService = emailService;
         }
 
-        [HttpPost("Verify-Email")]
-        public async Task<ActionResult<ServiceResponse<string>>> VerifyEmail(string email,string securityCode)
+        [HttpPost("{id}/verify-email")]
+        public async Task<ActionResult<ServiceResponse<string>>> VerifyEmail([FromRoute]int id, [FromBody]string securityCode)
         {
-            return Ok(await _emailService.VerifyEmail(email, securityCode));
+            return Ok(await _emailService.VerifyEmail(id, securityCode));
         }
-        [HttpPost("Resend-SecurityCode")]
-        public async Task<ActionResult<ServiceResponse<string>>> ResendSecurityCode(string email)
+        [HttpPost("{id}/resend-securitycode")]
+        public async Task<ActionResult<ServiceResponse<string>>> ResendSecurityCode([FromRoute]int id)
         {
-            return Ok(await _emailService.ResendEmail(email));
+            return Ok(await _emailService.ResendEmail(id));
         }
     }
 }

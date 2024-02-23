@@ -29,10 +29,10 @@
                 }
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 user = _mapper.Map<User>(request);
+                metaData.OwnerId = request.Id;
                 metaData.Email = request.Email;
                 metaData.PasswordHash = passwordHash;
                 _context.Users.Add(user);
-                metaData.Id = user.Id;
                 _context.MetaDatas.Add(metaData);
                 serviceResponse.Data = _mapper.Map<GetUserDto>(user);
                 serviceResponse.Success = true;
@@ -61,7 +61,7 @@
                     throw new Exception("You have not verified your email.");
                 }
                 string token = _tokenService.CreateToken(metaData);
-                var refreshToken = _tokenService.CreateRefreshToken(metaData.Id);
+                var refreshToken = _tokenService.CreateRefreshToken(metaData.OwnerId);
                 await _tokenService.SetRefreshToken(refreshToken, metaData);
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
@@ -91,19 +91,19 @@
             }
             return serviceResponse;
         }
-        public async Task<ServiceResponse<string>> ResetPassword(string email, ResetPasswordDto request)
+        public async Task<ServiceResponse<string>> ResetPassword(int id, ResetPasswordDto request)
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
-                var user = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
-                if (user.IsVerified == false) {
+                var metaData = await _context.MetaDatas.Where(x => x.OwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
+                if (metaData.IsVerified == false) {
                     throw new Exception("You have not verified your email.");
                 }
-                var cacheCode = await _cacheService.GetData<string>($"SecurityCode:{email}") ?? throw new Exception("Security code has expired.");
+                var cacheCode = await _cacheService.GetData<string>($"SecurityCode:{metaData.Email}") ?? throw new Exception("Security code has expired.");
                 if (cacheCode != request.SecurityCode) {
                     throw new Exception("Invalid security code.");
                 }
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                metaData.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 await _context.SaveChangesAsync();
                 serviceResponse.Data = null;
                 serviceResponse.Success = true;
