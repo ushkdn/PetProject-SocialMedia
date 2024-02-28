@@ -40,7 +40,6 @@
                 await _context.SaveChangesAsync();
                 await _emailService.SendEmail("Security code to complete registration.", request.Email);
             } catch (Exception ex) {
-                serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -61,14 +60,13 @@
                     throw new Exception("You have not verified your email.");
                 }
                 string token = _tokenService.CreateToken(metaData);
-                var refreshToken = _tokenService.CreateRefreshToken(metaData.OwnerId);
+                var refreshToken = _tokenService.CreateRefreshToken();
                 await _tokenService.SetRefreshToken(refreshToken, metaData);
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You are successfully logged in.";
 
             } catch (Exception ex) {
-                serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -80,12 +78,10 @@
             try {
                 var metaData = await _context.MetaDatas.Where(x => x.Email == email).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
                 await _emailService.SendEmail("Security code for password recovery.", email);
-                serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Security code sent to your email.";
 
             } catch (Exception ex) {
-                serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -105,12 +101,10 @@
                 }
                 metaData.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 await _context.SaveChangesAsync();
-                serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully updated your password.";
 
             } catch (Exception ex) {
-                serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }

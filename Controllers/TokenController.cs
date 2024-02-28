@@ -11,7 +11,7 @@
             _tokenService = tokenService;
         }
 
-        [HttpPost("Refresh-Token")]
+        [HttpPost]
         public async Task<ActionResult<ServiceResponse<string>>> RefreshToken()
         {
             return Ok(await _tokenService.RefreshToken());

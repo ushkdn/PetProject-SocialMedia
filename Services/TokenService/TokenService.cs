@@ -2,13 +2,13 @@
 {
     public class TokenService : ITokenService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor _http;
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
 
-        public TokenService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration)
+        public TokenService(IHttpContextAccessor http, DataContext context, IConfiguration configuration)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _http = http;
             _context = context;
             _configuration = configuration;
         }
@@ -16,7 +16,7 @@
         public async Task<ServiceResponse<string>> RefreshToken()
         {
             var serviceResponse = new ServiceResponse<string>();
-            var refreshTokenCookie = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
+            var refreshTokenCookie = _http.HttpContext.Request.Cookies["refreshToken"];
             try {
                 var metaData = await _context.MetaDatas.Where(x => x.RefreshToken == refreshTokenCookie).FirstOrDefaultAsync();
 
@@ -31,21 +31,20 @@
                 }
 
                 string token = CreateToken(metaData);
-                var newRefreshToken = CreateRefreshToken(metaData.OwnerId);
+                var newRefreshToken = CreateRefreshToken();
                 await SetRefreshToken(newRefreshToken, metaData);
 
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Refresh token updated successfully";
             } catch (Exception ex) {
-                serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
         }
 
-        public RefreshToken CreateRefreshToken(int userId)
+        public RefreshToken CreateRefreshToken()
         {
             var refreshToken = new RefreshToken
             {
@@ -63,7 +62,7 @@
                 HttpOnly = true,
                 Expires = newRefreshToken.Expires
             };
-            _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+            _http.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
             metaData.RefreshToken = newRefreshToken.Token;
             metaData.TokenCreated = newRefreshToken.Created;
             metaData.TokenExpires = newRefreshToken.Expires;
@@ -72,7 +71,7 @@
 
         public string CreateToken(MetaData metaData)
         {
-            List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Email, metaData.Email) };
+            List<Claim> claims = new List<Claim> { new Claim("Id", $"{metaData.OwnerId}"),new Claim(ClaimTypes.Email, metaData.Email), new Claim(ClaimTypes.Role, "Client") };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:DefaultToken").Value));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(

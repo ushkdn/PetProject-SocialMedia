@@ -3,7 +3,7 @@
     public interface ITokenService
     {
         Task<ServiceResponse<string>> RefreshToken();
-        RefreshToken CreateRefreshToken(int userId);
+        RefreshToken CreateRefreshToken();
         Task SetRefreshToken(RefreshToken newRefreshToken, MetaData metaData);
         string CreateToken(MetaData metaData);
     }

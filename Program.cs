@@ -6,6 +6,7 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.OpenApi.Models;
+global using Microsoft.AspNetCore.Authorization;
 global using MimeKit;
 global using MimeKit.Text;
 global using SocialNetwork.Data;
@@ -16,6 +17,8 @@ global using SocialNetwork.Services.EmailService;
 global using SocialNetwork.Services.TokenService;
 global using SocialNetwork.Services.CacheService;
 global using SocialNetwork.Services.UserService;
+global using SocialNetwork.Services.GroupService;
+global using SocialNetwork.Dtos.GroupDtos;
 global using Swashbuckle.AspNetCore.Filters;
 global using System.ComponentModel.DataAnnotations;
 global using System.IdentityModel.Tokens.Jwt;
@@ -36,6 +39,7 @@ namespace SocialNetwork
             builder.Services.AddControllers();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddSwaggerGen(options => {
                 options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
@@ -65,6 +69,7 @@ namespace SocialNetwork
             builder.Services.AddScoped<ICacheService, CacheService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IGroupService, GroupService>();
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment()) {

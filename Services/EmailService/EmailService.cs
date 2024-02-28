@@ -22,12 +22,10 @@
                 } else {
                     await SendEmail("Security code for password recovery.", metaData.Email);
                 }
-                serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "New security code has been sent to your email.";
 
             } catch (Exception ex) {
-                serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -59,7 +57,6 @@
 
             smtp.Send(email);
             smtp.Disconnect(true);
-            serviceResponse.Data = null;
             serviceResponse.Success = true;
             serviceResponse.Message = "Security code sent to your email.";
             return serviceResponse;
@@ -79,12 +76,10 @@
                 }
                 metaData.IsVerified = true;
                 await _context.SaveChangesAsync();
-                serviceResponse.Data = null;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Email successfully confirmed.";
 
             } catch (Exception ex) {
-                serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
