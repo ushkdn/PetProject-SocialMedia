@@ -29,7 +29,7 @@
                 }
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 user = _mapper.Map<User>(request);
-                metaData.OwnerId = request.Id;
+                metaData.MetaDataOwnerId = request.Id;
                 metaData.Email = request.Email;
                 metaData.PasswordHash = passwordHash;
                 _context.Users.Add(user);
@@ -44,9 +44,9 @@
                 serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
-
         }
-        public async Task<ServiceResponse<string>> LoginIn(LoginInUserDto request)
+
+        public async Task<ServiceResponse<string>> LogIn(LogInUserDto request)
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
@@ -65,13 +65,13 @@
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You are successfully logged in.";
-
             } catch (Exception ex) {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
         }
+
         public async Task<ServiceResponse<string>> ForgotPassword(string email)
         {
             var serviceResponse = new ServiceResponse<string>();
@@ -80,30 +80,29 @@
                 await _emailService.SendEmail("Security code for password recovery.", email);
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Security code sent to your email.";
-
             } catch (Exception ex) {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
         }
+
         public async Task<ServiceResponse<string>> ResetPassword(int id, ResetPasswordDto request)
         {
             var serviceResponse = new ServiceResponse<string>();
             try {
-                var metaData = await _context.MetaDatas.Where(x => x.OwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
+                var metaData = await _context.MetaDatas.Where(x => x.MetaDataOwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("User not found.");
                 if (metaData.IsVerified == false) {
                     throw new Exception("You have not verified your email.");
                 }
-                var cacheCode = await _cacheService.GetData<string>($"SecurityCode:{metaData.Email}") ?? throw new Exception("Security code has expired.");
-                if (cacheCode != request.SecurityCode) {
+                var cacheCode = await _cacheService.GetData<string>($"code:{metaData.Email}") ?? throw new Exception("Security code has expired.");
+                if (cacheCode != request.Code) {
                     throw new Exception("Invalid security code.");
                 }
                 metaData.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 await _context.SaveChangesAsync();
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully updated your password.";
-
             } catch (Exception ex) {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;

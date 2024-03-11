@@ -6,12 +6,14 @@
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+
         public UserController(IUserService userService)
         {
             _userService = userService;
         }
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetOne([FromRoute]int id)
+        public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetOne([FromRoute] int id)
         {
             return Ok(await _userService.GetOne(id));
         }

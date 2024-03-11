@@ -3,9 +3,9 @@
     public class Post
     {
         public int Id { get; set; }
-        public string OwnerId { get; set; } = string.Empty;
+        public int PostOwnerId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public int Likes { get; set; }
+        public uint Likes { get; set; }
     }
 }

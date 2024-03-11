@@ -4,11 +4,13 @@
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
+
         public UserService(DataContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
+
         public async Task<ServiceResponse<GetUserDto>> GetOne(int id)
         {
             var serviceResponse = new ServiceResponse<GetUserDto>();

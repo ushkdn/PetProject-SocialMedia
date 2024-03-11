@@ -7,10 +7,12 @@
         public string Name { get; set; } = string.Empty;
         public DateTime Birthday { get; set; }
         public string Location { get; set; } = string.Empty;
-        public List<int> Friends{ get; set; } = [];
-        public List<int> Groups { get; set; } = [];
-        public List<int> SentGroupJoinRequests {  get; set; } = [];
-        public List<int> SentFriendRequests { get; set; } = [];
-        public List<int> IncomingFriendRequests { get; set; } = [];
+
+        //public List<User> Friends { get; set; } = [];
+        public List<Group> Groups { get; set; } = [];
+
+        public List<Group> SentGroupJoinRequests { get; set; } = [];
+        //public List<int> SentFriendRequests { get; set; } = [];
+        //public List<int> IncomingFriendRequests { get; set; } = [];
     }
 }

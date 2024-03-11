@@ -1,6 +1,6 @@
 ﻿namespace SocialNetwork.Dtos.UserDtos
 {
-    public class LoginInUserDto
+    public class LogInUserDto
     {
         [Required, EmailAddress]
         public string Email { get; set; }
