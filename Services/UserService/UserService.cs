@@ -11,15 +11,18 @@
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<GetUserDto>> GetOne(int id)
+        public async Task<ServiceResponse<GetUserDto>> GetOne(string id)
         {
             var serviceResponse = new ServiceResponse<GetUserDto>();
-            try {
+            try
+            {
                 var user = await _context.Users.FindAsync(id) ?? throw new Exception("User not found.");
                 serviceResponse.Data = _mapper.Map<GetUserDto>(user);
                 serviceResponse.Success = true;
                 serviceResponse.Message = "You have successfully received information about yourself.";
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 serviceResponse.Data = null;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;

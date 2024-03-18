@@ -8,6 +8,6 @@
 
         Task<ServiceResponse<string>> ForgotPassword(string email);
 
-        Task<ServiceResponse<string>> ResetPassword(int id, ResetPasswordDto request);
+        Task<ServiceResponse<string>> ResetPassword(string id, ResetPasswordDto request);
     }
 }

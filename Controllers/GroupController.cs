@@ -31,19 +31,19 @@
         }
 
         [HttpPost("{groupId}/kick/{memberId}")]
-        public async Task<ActionResult<ServiceResponse<string>>> KickMember([FromRoute] int groupId, [FromRoute] int memberId)
+        public async Task<ActionResult<ServiceResponse<string>>> KickMember([FromRoute] int groupId, [FromRoute] string memberId)
         {
             return Ok(await _groupService.KickMember(groupId, memberId));
         }
 
         [HttpDelete("{groupId}/reject/{memberId}")]
-        public async Task<ActionResult<ServiceResponse<string>>> RejectJoinRequest([FromRoute] int groupId, [FromRoute] int memberId)
+        public async Task<ActionResult<ServiceResponse<string>>> RejectJoinRequest([FromRoute] int groupId, [FromRoute] string memberId)
         {
             return Ok(await _groupService.RejectJoinRequest(groupId, memberId));
         }
 
         [HttpPost("{groupId}/accept/{memberId}")]
-        public async Task<ActionResult<ServiceResponse<string>>> AcceptJoinRequest([FromRoute] int groupId, [FromRoute] int memberId)
+        public async Task<ActionResult<ServiceResponse<string>>> AcceptJoinRequest([FromRoute] int groupId, [FromRoute] string memberId)
         {
             return Ok(await _groupService.AcceptJoinRequest(groupId, memberId));
         }

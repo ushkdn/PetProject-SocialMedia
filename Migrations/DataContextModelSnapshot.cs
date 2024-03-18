@@ -24,8 +24,8 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("GroupUser", b =>
                 {
-                    b.Property<int>("FollowersId")
-                        .HasColumnType("integer");
+                    b.Property<string>("FollowersId")
+                        .HasColumnType("text");
 
                     b.Property<int>("GroupsId")
                         .HasColumnType("integer");
@@ -39,8 +39,8 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("GroupUser1", b =>
                 {
-                    b.Property<int>("JoinRequestsId")
-                        .HasColumnType("integer");
+                    b.Property<string>("JoinRequestsId")
+                        .HasColumnType("text");
 
                     b.Property<int>("SentGroupJoinRequestsId")
                         .HasColumnType("integer");
@@ -64,13 +64,14 @@ namespace SocialNetwork.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("GroupOwnerId")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsClosed")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OwnerId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -81,11 +82,8 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("SocialNetwork.Entities.MetaData", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -93,9 +91,6 @@ namespace SocialNetwork.Migrations
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("MetaDataOwnerId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -111,7 +106,7 @@ namespace SocialNetwork.Migrations
                     b.Property<DateTime>("TokenExpires")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("OwnerId");
 
                     b.ToTable("MetaDatas");
                 });
@@ -134,8 +129,9 @@ namespace SocialNetwork.Migrations
                     b.Property<long>("Likes")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("PostOwnerId")
-                        .HasColumnType("integer");
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -150,11 +146,8 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("SocialNetwork.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Birthday")
                         .HasColumnType("timestamp with time zone");

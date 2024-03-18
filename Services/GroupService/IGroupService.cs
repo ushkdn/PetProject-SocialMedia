@@ -8,11 +8,11 @@
 
         Task<ServiceResponse<string>> Delete(int id);
 
-        Task<ServiceResponse<string>> KickMember(int groupId, int memberId);
+        Task<ServiceResponse<string>> KickMember(int groupId, string memberId);
 
-        Task<ServiceResponse<string>> RejectJoinRequest(int groupId, int memberId);
+        Task<ServiceResponse<string>> RejectJoinRequest(int groupId, string memberId);
 
-        Task<ServiceResponse<string>> AcceptJoinRequest(int groupId, int memberId);
+        Task<ServiceResponse<string>> AcceptJoinRequest(int groupId, string memberId);
 
         Task<ServiceResponse<string>> JoinGroup(int groupId);
     }

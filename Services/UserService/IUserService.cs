@@ -2,6 +2,6 @@
 {
     public interface IUserService
     {
-        Task<ServiceResponse<GetUserDto>> GetOne(int id);
+        Task<ServiceResponse<GetUserDto>> GetOne(string id);
     }
 }

@@ -2,8 +2,8 @@
 {
     public class MetaData
     {
-        public int Id { get; set; }
-        public int MetaDataOwnerId { get; set; }
+        [Key]
+        public string OwnerId { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public bool IsVerified { get; set; } = false;
         public string PasswordHash { get; set; } = string.Empty;

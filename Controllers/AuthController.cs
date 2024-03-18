@@ -30,7 +30,7 @@
         }
 
         [HttpPost("{id}/reset-password")]
-        public async Task<ActionResult<ServiceResponse<string>>> ResetPassword([FromRoute] int id, [FromBody] ResetPasswordDto request)
+        public async Task<ActionResult<ServiceResponse<string>>> ResetPassword([FromRoute] string id, [FromBody] ResetPasswordDto request)
         {
             return Ok(await _authService.ResetPassword(id, request));
         }

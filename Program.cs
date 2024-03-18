@@ -40,7 +40,8 @@ namespace SocialNetwork
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddHttpContextAccessor();
-            builder.Services.AddSwaggerGen(options => {
+            builder.Services.AddSwaggerGen(options =>
+            {
                 options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
                     Description = "Standart authorization header using the Bearer Scheme (\"bearer {token}\")",
@@ -51,11 +52,13 @@ namespace SocialNetwork
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
             builder.Services.AddAutoMapper(typeof(Program).Assembly);
-            builder.Services.AddDbContext<DataContext>(options => {
+            builder.Services.AddDbContext<DataContext>(options =>
+            {
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-                options => {
+                options =>
+                {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
@@ -72,7 +75,8 @@ namespace SocialNetwork
             builder.Services.AddScoped<IGroupService, GroupService>();
             var app = builder.Build();
 
-            if (app.Environment.IsDevelopment()) {
+            if (app.Environment.IsDevelopment())
+            {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }

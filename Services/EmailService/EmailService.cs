@@ -13,19 +13,25 @@
             _cacheService = cacheService;
         }
 
-        public async Task<ServiceResponse<string>> ResendEmail(int id)
+        public async Task<ServiceResponse<string>> ResendCode(string id)
         {
             var serviceResponse = new ServiceResponse<string>();
-            try {
-                var metaData = await _context.MetaDatas.Where(x => x.MetaDataOwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
-                if (metaData.IsVerified == false) {
+            try
+            {
+                var metaData = await _context.MetaDatas.Where(x => x.OwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
+                if (metaData.IsVerified == false)
+                {
                     await SendEmail("Security code to complete registration.", metaData.Email);
-                } else {
+                }
+                else
+                {
                     await SendEmail("Security code for password recovery.", metaData.Email);
                 }
                 serviceResponse.Success = true;
                 serviceResponse.Message = "New security code has been sent to your email.";
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -63,23 +69,28 @@
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<string>> VerifyEmail(int id, string securityCode)
+        public async Task<ServiceResponse<string>> VerifyEmail(string id, string securityCode)
         {
             var serviceResponse = new ServiceResponse<string>();
-            try {
-                var metaData = await _context.MetaDatas.Where(x => x.MetaDataOwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
-                if (metaData.IsVerified == true) {
+            try
+            {
+                var metaData = await _context.MetaDatas.Where(x => x.OwnerId == id).FirstOrDefaultAsync() ?? throw new Exception("You are not registered.");
+                if (metaData.IsVerified == true)
+                {
                     throw new Exception("Your email has already been confirmed.");
                 }
                 var cacheCode = await _cacheService.GetData<string>($"code:{metaData.Email}") ?? throw new Exception("Security code has expired.");
-                if (cacheCode != securityCode) {
+                if (cacheCode != securityCode)
+                {
                     throw new Exception("Wrong security code.");
                 }
                 metaData.IsVerified = true;
                 await _context.SaveChangesAsync();
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Email successfully confirmed.";
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -93,7 +104,8 @@
 
             char[] result = new char[8];
 
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 8; i++)
+            {
                 result[i] = chars[rnd.Next(chars.Length)];
             }
             return new string(result);

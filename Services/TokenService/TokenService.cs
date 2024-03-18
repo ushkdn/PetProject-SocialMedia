@@ -17,16 +17,20 @@
         {
             var serviceResponse = new ServiceResponse<string>();
             var refreshTokenCookie = _http.HttpContext.Request.Cookies["refreshToken"];
-            try {
+            try
+            {
                 var metaData = await _context.MetaDatas.Where(x => x.RefreshToken == refreshTokenCookie).FirstOrDefaultAsync();
 
-                if (string.IsNullOrEmpty(refreshTokenCookie)) {
+                if (string.IsNullOrEmpty(refreshTokenCookie))
+                {
                     throw new Exception("Missing refresh token.");
                 }
-                if (metaData == null || !metaData.RefreshToken.Equals(refreshTokenCookie, StringComparison.OrdinalIgnoreCase)) {
+                if (metaData == null || !metaData.RefreshToken.Equals(refreshTokenCookie, StringComparison.OrdinalIgnoreCase))
+                {
                     throw new Exception("Invalid refresh token.");
                 }
-                if (metaData.TokenExpires < DateTime.Now) {
+                if (metaData.TokenExpires < DateTime.Now)
+                {
                     throw new Exception("Token expired.");
                 }
 
@@ -37,7 +41,9 @@
                 serviceResponse.Data = token;
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Refresh token updated successfully";
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -71,7 +77,7 @@
 
         public string CreateToken(MetaData metaData)
         {
-            List<Claim> claims = new List<Claim> { new Claim("Id", $"{metaData.MetaDataOwnerId}"), new Claim(ClaimTypes.Email, metaData.Email), new Claim(ClaimTypes.Role, "Client") };
+            List<Claim> claims = new List<Claim> { new Claim("Id", $"{metaData.OwnerId}"), new Claim(ClaimTypes.Email, metaData.Email), new Claim(ClaimTypes.Role, "Client") };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:DefaultToken").Value));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(

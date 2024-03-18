@@ -18,7 +18,7 @@ namespace SocialNetwork.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    GroupOwnerId = table.Column<int>(type: "integer", nullable: false),
+                    OwnerId = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     IsClosed = table.Column<bool>(type: "boolean", nullable: false)
@@ -32,9 +32,7 @@ namespace SocialNetwork.Migrations
                 name: "MetaDatas",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MetaDataOwnerId = table.Column<int>(type: "integer", nullable: false),
+                    OwnerId = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
@@ -44,15 +42,14 @@ namespace SocialNetwork.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MetaDatas", x => x.Id);
+                    table.PrimaryKey("PK_MetaDatas", x => x.OwnerId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<string>(type: "text", nullable: false),
                     Surname = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Birthday = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -69,7 +66,7 @@ namespace SocialNetwork.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PostOwnerId = table.Column<int>(type: "integer", nullable: false),
+                    OwnerId = table.Column<string>(type: "text", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Likes = table.Column<long>(type: "bigint", nullable: false),
@@ -89,7 +86,7 @@ namespace SocialNetwork.Migrations
                 name: "UserGroups",
                 columns: table => new
                 {
-                    FollowersId = table.Column<int>(type: "integer", nullable: false),
+                    FollowersId = table.Column<string>(type: "text", nullable: false),
                     GroupsId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -113,7 +110,7 @@ namespace SocialNetwork.Migrations
                 name: "UserJoinRequests",
                 columns: table => new
                 {
-                    JoinRequestsId = table.Column<int>(type: "integer", nullable: false),
+                    JoinRequestsId = table.Column<string>(type: "text", nullable: false),
                     SentGroupJoinRequestsId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
