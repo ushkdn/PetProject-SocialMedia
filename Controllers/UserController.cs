@@ -13,7 +13,7 @@
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetOne([FromRoute] string id)
+        public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetOne([FromRoute] int id)
         {
             return Ok(await _userService.GetOne(id));
         }

@@ -3,7 +3,7 @@
     public class MetaData
     {
         [Key]
-        public string OwnerId { get; set; } = string.Empty;
+        public int OwnerId { get; set; }
         public string Email { get; set; } = string.Empty;
         public bool IsVerified { get; set; } = false;
         public string PasswordHash { get; set; } = string.Empty;

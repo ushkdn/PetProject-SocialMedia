@@ -13,6 +13,14 @@
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+
+			// modelBuilder.Entity<UserGroups>().HasKey(ug => new { ug.UserId, ug.GroupId });
+			// modelBuilder.Entity<UserJoinRequest>().HasKey(ur => new { ur.UserId, ur.GroupId });
+			modelBuilder.Entity<User>()
+				.HasMany(u => u.Groups)
+				.WithMany(f => f.Followers)
+				.UsingEntity(j => j.ToTable("UserGroups"));
+
 			modelBuilder.Entity<User>()
 				.HasMany(u => u.SentGroupJoinRequests)
 				.WithMany(j => j.JoinRequests)

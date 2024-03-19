@@ -4,8 +4,8 @@
     {
         Task<ServiceResponse<string>> SendEmail(string topic, string recipient);
 
-        Task<ServiceResponse<string>> VerifyEmail(string id, string securityCode);
+        Task<ServiceResponse<string>> VerifyEmail(int id, string securityCode);
 
-        Task<ServiceResponse<string>> ResendCode(string id);
+        Task<ServiceResponse<string>> ResendCode(int id);
     }
 }

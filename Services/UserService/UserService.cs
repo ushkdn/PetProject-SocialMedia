@@ -11,7 +11,7 @@
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<GetUserDto>> GetOne(string id)
+        public async Task<ServiceResponse<GetUserDto>> GetOne(int id)
         {
             var serviceResponse = new ServiceResponse<GetUserDto>();
             try

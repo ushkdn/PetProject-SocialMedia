@@ -12,8 +12,8 @@ using SocialNetwork.Data;
 namespace SocialNetwork.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240318124016_Initial")]
-    partial class Initial
+    [Migration("20240319185408_Initail")]
+    partial class Initail
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,8 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("GroupUser", b =>
                 {
-                    b.Property<string>("FollowersId")
-                        .HasColumnType("text");
+                    b.Property<int>("FollowersId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("GroupsId")
                         .HasColumnType("integer");
@@ -42,8 +42,8 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("GroupUser1", b =>
                 {
-                    b.Property<string>("JoinRequestsId")
-                        .HasColumnType("text");
+                    b.Property<int>("JoinRequestsId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("SentGroupJoinRequestsId")
                         .HasColumnType("integer");
@@ -74,9 +74,8 @@ namespace SocialNetwork.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OwnerId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -85,8 +84,11 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("SocialNetwork.Entities.MetaData", b =>
                 {
-                    b.Property<string>("OwnerId")
-                        .HasColumnType("text");
+                    b.Property<int>("OwnerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OwnerId"));
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -126,9 +128,6 @@ namespace SocialNetwork.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("GroupId")
-                        .HasColumnType("integer");
-
                     b.Property<long>("Likes")
                         .HasColumnType("bigint");
 
@@ -142,15 +141,16 @@ namespace SocialNetwork.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
-
                     b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("SocialNetwork.Entities.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Birthday")
                         .HasColumnType("timestamp with time zone");
@@ -200,18 +200,6 @@ namespace SocialNetwork.Migrations
                         .HasForeignKey("SentGroupJoinRequestsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SocialNetwork.Entities.Post", b =>
-                {
-                    b.HasOne("SocialNetwork.Entities.Group", null)
-                        .WithMany("Posts")
-                        .HasForeignKey("GroupId");
-                });
-
-            modelBuilder.Entity("SocialNetwork.Entities.Group", b =>
-                {
-                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

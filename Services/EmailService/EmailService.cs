@@ -13,7 +13,7 @@
             _cacheService = cacheService;
         }
 
-        public async Task<ServiceResponse<string>> ResendCode(string id)
+        public async Task<ServiceResponse<string>> ResendCode(int id)
         {
             var serviceResponse = new ServiceResponse<string>();
             try
@@ -69,7 +69,7 @@
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<string>> VerifyEmail(string id, string securityCode)
+        public async Task<ServiceResponse<string>> VerifyEmail(int id, string securityCode)
         {
             var serviceResponse = new ServiceResponse<string>();
             try

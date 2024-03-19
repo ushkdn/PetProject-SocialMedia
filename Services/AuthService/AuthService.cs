@@ -30,7 +30,6 @@
 				}
 				string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 				var user = _mapper.Map<User>(request);
-				user.Id = Convert.ToString(Ulid.NewUlid());
 				metaData.OwnerId = user.Id;
 				metaData.Email = request.Email;
 				metaData.PasswordHash = passwordHash;
@@ -98,7 +97,7 @@
 			return serviceResponse;
 		}
 
-		public async Task<ServiceResponse<string>> ResetPassword(string id, ResetPasswordDto request)
+		public async Task<ServiceResponse<string>> ResetPassword(int id, ResetPasswordDto request)
 		{
 			var serviceResponse = new ServiceResponse<string>();
 			try
