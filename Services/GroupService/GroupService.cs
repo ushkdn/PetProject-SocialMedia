@@ -19,13 +19,16 @@
 			//working too
 			try
 			{
+				string id = _http.HttpContext.User.FindFirstValue("Id") ?? throw new Exception("You are not log-in.");
+				if (!int.TryParse(id, out int ownerId)) { throw new Exception("User not found."); }
 				var group = _mapper.Map<Group>(newGroup);
-				int ownerId = Convert.ToInt32(_http.HttpContext.User.FindFirstValue("Id"));
 				group.OwnerId = ownerId;
-				var groupOwner = await _context.Users.FindAsync(ownerId) ?? throw new Exception("User not found.");
-				groupOwner.Groups.Add(group);
-				await _context.Groups.AddAsync(group);
+				var user = await _context.Users.FindAsync(ownerId) ?? throw new Exception("User not found.");
+				user.Groups.Add(group);
 				await _context.SaveChangesAsync();
+				var groupDto = _mapper.Map<GetGroupDto>(group);
+				groupDto.Followers = new List<GetMemberDto> { _mapper.Map<GetMemberDto>(user) };
+				serviceResponse.Data = groupDto;
 				serviceResponse.Success = true;
 				serviceResponse.Message = "You created a group.";
 			}
@@ -39,12 +42,14 @@
 
 		public async Task<ServiceResponse<string>> Delete(int id)
 		{
+			//working
 			var serviceResponse = new ServiceResponse<string>();
 			try
 			{
+				string _userId = _http.HttpContext.User.FindFirstValue("Id") ?? throw new Exception("You are not log-in.");
+				if (!int.TryParse(_userId, out int userId)) { throw new Exception("User not found."); }
 				var group = await _context.Groups.FindAsync(id) ?? throw new Exception("Group not found.");
-
-				if (group.OwnerId != Convert.ToInt32(_http.HttpContext.User.FindFirstValue("Id")))
+				if (group.OwnerId != userId)
 				{
 					throw new Exception("You are not group owner.");
 				}
@@ -97,26 +102,34 @@
 
 		public async Task<ServiceResponse<string>> JoinGroup(int groupId)
 		{
+			//working
 			var serviceResponse = new ServiceResponse<string>();
 			try
 			{
+				string id = _http.HttpContext.User.FindFirstValue("Id") ?? throw new Exception("You are not log-in.");
+				if (!int.TryParse(id, out int userId)) { throw new Exception("User not found."); }
 				var group = await _context.Groups.FindAsync(groupId) ?? throw new Exception("Group not found.");
-				var userId = Convert.ToInt32(_http.HttpContext.User.FindFirstValue("Id"));
-				var user = await _context.Users.FindAsync(userId) ?? throw new Exception("User not found.");
+				var user = await _context.Users.Include(g => g.SentGroupJoinRequests).Include(g => g.Groups).FirstOrDefaultAsync(x => x.Id == userId) ?? throw new Exception("User not found.");
 				if (user.Id == group.OwnerId)
 				{
 					throw new Exception("You are group owner.");
 				}
-				if (user.Groups.Contains(group) || user.SentGroupJoinRequests.Contains(group))
+				if (user.Groups.Contains(group))
 				{
 					throw new Exception("You are already in the group.");
 				}
-				else if (group.IsClosed == false)
+				if (user.SentGroupJoinRequests.Contains(group))
+				{
+					throw new Exception("Join request already sent.");
+				}
+
+				if (group.IsClosed == false)
 				{
 					user.Groups.Add(group);
 					serviceResponse.Message = "You joined the group.";
 				}
-				else
+
+				if (group.IsClosed == true)
 				{
 					user.SentGroupJoinRequests.Add(group);
 					serviceResponse.Message = "You sent join request.";
@@ -139,16 +152,17 @@
 			var serviceResponse = new ServiceResponse<string>();
 			try
 			{
+				string id = _http.HttpContext.User.FindFirstValue("Id") ?? throw new Exception("You are not log-in.");
+				if (!int.TryParse(id, out int ownerId)) { throw new Exception("User not found."); }
 				var group = await _context.Groups.FindAsync(groupId) ?? throw new Exception("Group not found.");
-
-				if (group.OwnerId != Convert.ToInt32(_http.HttpContext.User.FindFirstValue("Id")))
+				if (group.OwnerId != ownerId)
 				{
 					throw new Exception("You are not group owner.");
 				}
-				var user = await _context.Users.Include(g => g.SentGroupJoinRequests).FirstAsync(x => x.Id == memberId) ?? throw new Exception("User not found.");
+				var user = await _context.Users.Include(g => g.SentGroupJoinRequests).Include(g => g.Groups).FirstOrDefaultAsync(x => x.Id == memberId) ?? throw new Exception("User not found.");
 				if (group.Followers.Contains(user))
 				{
-					throw new Exception("You are already in a group.");
+					throw new Exception("User already in a group.");
 				}
 				group.Followers.Add(user);
 				user.SentGroupJoinRequests.Remove(group);
@@ -166,17 +180,23 @@
 
 		public async Task<ServiceResponse<string>> RejectJoinRequest(int groupId, int memberId)
 		{
+			//working
 			var serviceResponse = new ServiceResponse<string>();
 			try
 			{
+				string id = _http.HttpContext.User.FindFirstValue("Id") ?? throw new Exception("You are not log-in.");
+				if (!int.TryParse(id, out int userId)) { throw new Exception("User not found."); }
 				var group = await _context.Groups.FindAsync(groupId) ?? throw new Exception("Group not found.");
-				if (group.OwnerId != Convert.ToInt32(_http.HttpContext.User.FindFirst("Id")))
+				if (group.OwnerId != userId)
 				{
 					throw new Exception("You are not group owner.");
 				}
-				var userRequest = await _context.Users.FindAsync(memberId) ?? throw new Exception("User not found.");
-				// group.JoinRequests.Remove(userRequest);
-				// userRequest.SentGroupJoinRequests.Remove(group);
+				var user = await _context.Users.Include(r => r.SentGroupJoinRequests).FirstOrDefaultAsync(x => x.Id == memberId) ?? throw new Exception("User not found.");
+				if (!user.SentGroupJoinRequests.Contains(group))
+				{
+					throw new Exception("Join request not found.");
+				}
+				user.SentGroupJoinRequests.Remove(group);
 				await _context.SaveChangesAsync();
 				serviceResponse.Message = "You rejected the application.";
 				serviceResponse.Success = true;
@@ -191,21 +211,28 @@
 
 		public async Task<ServiceResponse<string>> KickMember(int groupId, int memberId)
 		{
+			//working
 			var serviceResponse = new ServiceResponse<string>();
 			try
 			{
+				string id = _http.HttpContext.User.FindFirstValue("Id") ?? throw new Exception("You are not log-in.");
+				if (!int.TryParse(id, out int userId)) { throw new Exception("User not found."); }
 				var group = await _context.Groups.FindAsync(groupId) ?? throw new Exception("Group not found.");
-				if (group.OwnerId != Convert.ToInt32(_http.HttpContext.User.FindFirst("Id")))
+
+				if (group.OwnerId != userId)
 				{
 					throw new Exception("You are not group owner.");
 				}
-				var user = await _context.Users.FindAsync(memberId) ?? throw new Exception("User not found.");
-				// if (!group.Followers.Contains(user))
-				// {
-				// 	throw new Exception("This member is not in the group.");
-				// }
-				// group.Followers.Remove(user);
-				// user.Groups.Remove(group);
+				if (memberId == group.OwnerId)
+				{
+					throw new Exception("You are group owner.");
+				}
+				var user = await _context.Users.Include(g => g.Groups).FirstOrDefaultAsync(x => x.Id == memberId) ?? throw new Exception("User not found.");
+				if (!group.Followers.Contains(user))
+				{
+					throw new Exception("This member is not in the group.");
+				}
+				user.Groups.Remove(group);
 				await _context.SaveChangesAsync();
 				serviceResponse.Success = true;
 				serviceResponse.Message = "Member successfully kicked out.";
@@ -218,13 +245,15 @@
 			return serviceResponse;
 		}
 
-		public async Task<ServiceResponse<GetGroupDto>> GetOne(int id)
+		public async Task<ServiceResponse<GetGroupDto>> GetOne(int groupId)
 		{
+			//working
 			var serviceResponse = new ServiceResponse<GetGroupDto>();
 			try
 			{
-				var group = await _context.Groups.FindAsync(id) ?? throw new Exception("Group not found.");
-				serviceResponse.Data = _mapper.Map<GetGroupDto>(group);
+				var group = await _context.Groups.Include(f => f.Followers).FirstOrDefaultAsync(x => x.Id == groupId) ?? throw new Exception("Group not found.");
+				var groupDto = _mapper.Map<GetGroupDto>(group);
+				serviceResponse.Data = groupDto;
 				serviceResponse.Success = true;
 				serviceResponse.Message = "You successfully recieved information about group.";
 			}
@@ -238,13 +267,14 @@
 
 		public async Task<ServiceResponse<List<GetGroupDto>>> GetAll()
 		{
+			//working
 			var serviceResponse = new ServiceResponse<List<GetGroupDto>>();
 			try
 			{
 				var groups = await _context.Groups.ToListAsync();
 				serviceResponse.Data = groups.Select(x => _mapper.Map<GetGroupDto>(x)).ToList();
 				serviceResponse.Success = true;
-				serviceResponse.Message = "You successfully recieved information about group.";
+				serviceResponse.Message = "You recieved information about group.";
 			}
 			catch (Exception ex)
 			{

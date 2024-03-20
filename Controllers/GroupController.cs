@@ -53,5 +53,10 @@
         {
             return Ok(await _groupService.JoinGroup(groupId));
         }
+        [HttpGet("{groupId}")]
+        public async Task<ActionResult<ServiceResponse<GetGroupDto>>> GetOne([FromRoute] int groupId)
+        {
+            return Ok(await _groupService.GetOne(groupId));
+        }
     }
 }

@@ -15,5 +15,6 @@
         Task<ServiceResponse<string>> AcceptJoinRequest(int groupId, int memberId);
 
         Task<ServiceResponse<string>> JoinGroup(int groupId);
+        Task<ServiceResponse<GetGroupDto>> GetOne(int groupId);
     }
 }
